@@ -1,8 +1,9 @@
 from typing import Any
 from random import randint
 
+
 class MyDictionary(object):
-    def __init__ (self,bins=11):
+    def __init__(self, bins=11):
         self.hash_map = [[] for _ in range(bins)]
 
     def hash_function(self, item):
@@ -12,7 +13,7 @@ class MyDictionary(object):
         keyvalpair = (key, value)
         hashval = self.hash_function(key)
         if self.containskey(key):
-            #self.hash_map[hashval][key] = keyvalpair
+            # self.hash_map[hashval][key] = keyvalpair
             self.hash_map[hashval].append(keyvalpair)
         else:
             self.hash_map[hashval].append(keyvalpair)
@@ -20,7 +21,7 @@ class MyDictionary(object):
     def get(self, key):
         try:
             hashval = self.hash_function(key)
-            if len(self.hash_map[hashval])==0:
+            if len(self.hash_map[hashval]) == 0:
                 return None
             innerindex = self.search(self.hash_map[hashval], key)
             if innerindex == -1:
@@ -29,10 +30,11 @@ class MyDictionary(object):
                 return self.hash_map[hashval][innerindex][1]
         except:
             return None
+
     def getValues(self):
         values = []
         for l in range(len(self.hash_map)):
-            if self.hash_map[l] == [] or self.hash_map[l] == None or len(self.hash_map[l])<1:
+            if self.hash_map[l] == [] or self.hash_map[l] == None or len(self.hash_map[l]) < 1:
                 pass
             else:
                 innerlist = self.hash_map[l]
@@ -40,6 +42,7 @@ class MyDictionary(object):
                     item = innerlist[i]
                     values.append(item[1])
         return values
+
     def __str__(self) -> str:
         returnValue = ''
 
@@ -62,12 +65,13 @@ class MyDictionary(object):
                 found = True
             if found == True:
                 return count
-            count +=1
+            count += 1
         return -1
 
+    # not used
     def binarysearch(self, arr, search):
         length = int(len(arr))
-        #length = self.myDictLength(search)
+        # length = self.myDictLength(search)
         low = 0
         '''
         if len(arr) is tuple:
@@ -77,7 +81,7 @@ class MyDictionary(object):
         '''
         mid = (length + low) // 2
 
-        while low != length and low!=mid and mid!=length:
+        while low != length and low != mid and mid != length:
             if search > arr[mid][0]:
                 low = mid + 1
                 mid = (low + length) // 2
@@ -88,7 +92,8 @@ class MyDictionary(object):
                 return mid
         return None
 
-    def quicksort(self, arr):
+    # not used
+    def quicksort(self, arr):  # not implemented
         if len(arr) < 2:
             return arr
         low, same, high = [], [], []
@@ -102,7 +107,7 @@ class MyDictionary(object):
                 high.append(index)
         return self.quicksort(low) + same + self.quicksort(high)
 
-    def containskey (self, key):
+    def containskey(self, key):
         if self.get(key) == None:
             return False
         else:

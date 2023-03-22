@@ -1,32 +1,105 @@
+import copy
+import inspect
 from typing import Any
+from operator import attrgetter
+import inspect
+
 
 # under 16 pcks
-#still working on this
+# still working on this
 class Truck:
 
-    def __init__(self, id, packageList, departureTime=None, EODTime=None ):
+    def __init__(self, id, packageList, departureTime=0, EODTime=None):
         self.id = id
         self.packageList = packageList
         self.route = []
         self.departureTime = departureTime
         self.EODTime = EODTime
+        self.totalDistance = 0
+
     def getDeliveryTime(self, package_id):
         pass
 
-    def findRoute(self, distance_table):  # greedy algo sorts my truckLoads into routes and find times of delivery
-        route = None
-        # prioritize early delivery times, 2 trucks traveling at time (2 drivers)
-        # go to the next closest address
-        # leaves hub at 8:00 unless a package is arriving late in trucks list
-        # check in truck needs to go to hub (if all packages are empty then driver switches trucks)
-        # update any addresses at specified time. wrong address can't be delivered yet
-        # when address is updated at time new add given, EOD= back of list otherTime=filed in appropriate spot
-        # when packages is delivered add distance to totalDistanceDriven variable
+    def checkDistance(self, double_dict, add1, add2):
+        d1 = double_dict.get(add1)
+        a = d1.get(add2)
+        d2 = double_dict.get(add2)
+        b = d2.get(add1)
+        if a != None:
+            return a
+        elif b != None:
+            return b
+        else:
+            return None
+    def distance_to_time(self, distance):
+        minutes = int(float(distance) * (10/3.0))
 
-        self.route = route
+        return minutes
+    def convert_time(self, add_time):
+        hours = (add_time // 60) * 100
+        minutes = add_time % 60
+        return  hours + minutes
+    # Traveling Salesman sorts my truckLoads into routes and find times of delivery
+    def findRoute(self, distance_table):
+        route = []
+        deadlineList = []
+        EODList = []
+        for package in self.packageList:
+            if package.deadline != 2400:
+                deadlineList.append(package)
+            else:
+                EODList.append(package)
+        deadlineList.sort(key=attrgetter('deadline'))  # sorts list by times
+        for deadline_package in deadlineList:
+            for EOD_package in EODList:
+                if EOD_package.address == deadline_package.address:
+                    deadlineList.append(EOD_package)
+                    EODList.remove(EOD_package)
+                else:
+                    pass
+        previous_package = deadlineList[0]
+        fromNode = "HUB"
+        toNode = previous_package.address
+        totalDistance = float(self.checkDistance(distance_table, fromNode, toNode))
+        self.route.append(previous_package.id)
+        previous_package.deliverytime = self.convert_time(self.distance_to_time(totalDistance)) + self.departureTime
+        deadlineList.remove(previous_package)
+        while len(deadlineList) > 0:
+            nearestNode = None
+            shortestDistance = 9000
+            for next_package in deadlineList:
+                distance = float(self.checkDistance(distance_table, next_package.address, previous_package.address))
+                if distance < shortestDistance:
+                    shortestDistance = float(self.checkDistance(distance_table, next_package.address, previous_package.address))
+                    nearestNode = next_package
+            self.route.append(nearestNode.id)
+            totalDistance += shortestDistance
+            next_package.deliverytime = self.convert_time(self.distance_to_time(totalDistance)) + self.departureTime
+            previous_package = nearestNode
+            deadlineList.remove(nearestNode)
+        finalAddress = ""
+        while len(EODList) > 0:
+            nearestNode = None
+            shortestDistance = 9000
+            for next_package in EODList:
+                distance = float(self.checkDistance(distance_table, next_package.address, previous_package.address))
+                if distance < shortestDistance:
+                    shortestDistance = float(self.checkDistance(distance_table, next_package.address, previous_package.address))
+                    nearestNode = next_package
+            self.route.append(nearestNode.id)
+            totalDistance += shortestDistance
+            next_package.deliverytime = self.convert_time(self.distance_to_time(totalDistance)) + self.departureTime
+            previous_package = nearestNode
+            EODList.remove(nearestNode)
+            finalAddress = nearestNode.address
+        totalDistance += float(self.checkDistance(distance_table, finalAddress, "HUB"))
+        self.totalDistance = totalDistance
+        self.EODTime = self.convert_time(self.distance_to_time(totalDistance)) + self.departureTime
+        return self.route
 
-
-
+    def failedDelivery(self):
+        for package in self.packageList:
+            package.metDeliveryTime()
 
 
 

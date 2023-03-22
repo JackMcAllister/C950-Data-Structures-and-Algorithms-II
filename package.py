@@ -3,16 +3,16 @@ import re
 
 
 class Package:
-    def __init__(self, id, address, deadline, notes, status, deliverytime):
+    def __init__(self, id, address, deadline, notes, status):
       self.id = id
       self.address = address
-      self.deadline = deadline
+      self.deadline = int(deadline)
       self.deliveredWithReq = None
       self.delayedReq = False
       self.truckReq = None
       self.status = status
       self.notes = notes
-      self.deliverytime = deliverytime
+      self.deliverytime = 0
       self.setRequirements(notes)
 
     def setRequirements(self, notes):
@@ -35,4 +35,7 @@ class Package:
     def __getattribute__(self, name: str) -> Any:
       return super().__getattribute__(name)
 
+    def metDeliveryTime (self):
+        if self.deliverytime > self.deadline:
+            print(self.id, "did not meet deadline of", self.deadline, "delivery time:", self.deliverytime)
 

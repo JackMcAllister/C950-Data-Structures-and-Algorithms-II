@@ -23,9 +23,8 @@ def checkDistance(double_dict, add1, add2):
 def sortPackages(allPackages):
     # algorithm takes a list (allPackages) and sorts into 3 truckLoads (#of trucks we have)
     allPKGList = allPackages.getValues()
-    groupPackageIDs = set()  # adds id to set to then group pkgs
+    groupPackageIDs = set()  # adds id to set to then add to group pkgs
     groupedPackages = []
-    delayedList = []
     truckList1 = []
     truckList2 = []
     truckList3 = []
@@ -81,43 +80,24 @@ def sortPackages(allPackages):
     else:
         print("Grouped Packages can not be added to a single truck")
 
-    print('truckList1 :', len(truckList1), truckList1, '\n',
-          'truckList2 :', len(truckList2), truckList2, '\n',
-          'truckList3 :', len(truckList3), truckList3)
-    print("All pgkList :", allPKGList)
-
     for package in allPKGList:  # add other packages to truck lists
         canFit1 = 16 - len(truckList1) > 0
         canFit2 = 16 - len(truckList2) > 0
         canFit3 = 16 - len(truckList3) > 0
         if canFit1:
             truckList1.append(package)
-            #allPKGList.remove(package)
+            # allPKGList.remove(package)
         elif canFit2:
             truckList2.append(package)
-            #allPKGList.remove(package)
+            # allPKGList.remove(package)
         elif canFit3:
             truckList3.append(package)
-            #allPKGList.remove(package)
+            # allPKGList.remove(package)
 
-    print('truckList1 :', len(truckList1), truckList1, '\n',
-          'truckList2 :', len(truckList2), truckList2, '\n',
-          'truckList3 :', len(truckList3), truckList3)
-    print("All pgkList :", allPKGList)
-    package = []
-
-    # group like pkgs together (special note requirements, same address, time)
-    # add packages closest to early delivery time pgks
-    # fill truck 3 with late pgks, address change, and EOD has 15 total pkgs in truckLoad
-    # lists will have <16 pkgs (truck holds 15 pgks)
-    # first two trucks have priority pkgs maybe shorter lsits
-    # fill rest of trucks up with EOD pgks with most being in truck 3
-
-    truckLoads = [truckList1, truckList2,
-                  truckList3]  # set of lists, 1 list for each truck: [[pkgid, [pgkid],[pkgid], ...]
-    print('truckList1 :', len(truckList1), truckList1, '\n', 'truckList2 :', len(truckList2), truckList2, '\n',
-          'truckList3 :', len(truckList3), " ", truckList3)
-    print("All pgkList :", allPKGList)
+    truckLoads = [truckList1, truckList2, truckList3]
+    # set of lists, 1 list for each truck: [[pkgid, [pgkid],[pkgid], ...]
+    # print('truckList1 :', len(truckList1), truckList1, '\n', 'truckList2 :', len(truckList2), truckList2, '\n',
+    #      'truckList3 :', len(truckList3), " ", truckList3)
     return truckLoads
 
 
@@ -126,7 +106,7 @@ def convertTime(rawVal):
     # if the raw value contains a non-decimal character
     # then remove non-decimal characters and convert to int
     if rawVal != "EOD":
-        rarwVal = re.sub('[^0-9]', '', rawVal)
+        rawVal = re.sub('[^0-9]', '', rawVal)
         return rawVal
     else:
         return 2400
@@ -144,8 +124,8 @@ def loadPackages():
             deadline = convertTime(deadline)
             notes = row.get('Special Notes')
             status = 'At Hub'
-            deliverytime = ''
-            package = Package(id, address, deadline, notes, status, deliverytime)
+
+            package = Package(id, address, deadline, notes, status)
             dict_of_packages.insert(id, package)
 
             # packageList = packageList.append(dict_of_packages.index(0))
@@ -186,9 +166,20 @@ if __name__ == '__main__':
     trucks = []
     index = 1
     for load in loads:
-        truck = Truck(index, load)
+        if index == 1:
+            start = 800
+        elif index == 2:
+            start = 905
+        truck = Truck(index, load, start)
+        trucks.append(truck)
         index += 1
-        print(truck)
+
+    for truck in trucks:
+        truck.findRoute(distanceTable)
+        print("Truck ID:", truck.id, "\nNumber of Packages:", len(truck.packageList))
+        print("Total Distance:", truck.totalDistance, "\nEOD Time:", truck.EODTime)
+        truck.failedDelivery()
+        print("\n\n")
 
 
     # print(input"what package are you looking for? what time is it now?")
