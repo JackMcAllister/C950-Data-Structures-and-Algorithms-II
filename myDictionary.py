@@ -5,11 +5,8 @@ class MyDictionary(object):
     def __init__ (self,bins=11):
         self.hash_map = [[] for _ in range(bins)]
 
-
-
     def hash_function(self, item):
         return hash(item) % 10
-
 
     def insert(self, key, value):
         keyvalpair = (key, value)
@@ -19,7 +16,6 @@ class MyDictionary(object):
             self.hash_map[hashval].append(keyvalpair)
         else:
             self.hash_map[hashval].append(keyvalpair)
-
 
     def get(self, key):
         try:
@@ -33,7 +29,17 @@ class MyDictionary(object):
                 return self.hash_map[hashval][innerindex][1]
         except:
             return None
-
+    def getValues(self):
+        values = []
+        for l in range(len(self.hash_map)):
+            if self.hash_map[l] == [] or self.hash_map[l] == None or len(self.hash_map[l])<1:
+                pass
+            else:
+                innerlist = self.hash_map[l]
+                for i in range(len(innerlist)):
+                    item = innerlist[i]
+                    values.append(item[1])
+        return values
     def __str__(self) -> str:
         returnValue = ''
 
