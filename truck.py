@@ -61,8 +61,9 @@ class Truck:
         fromNode = "HUB"
         toNode = previous_package.address
         totalDistance = float(self.checkDistance(distance_table, fromNode, toNode))
-        self.route.append(previous_package.id)
         previous_package.deliverytime = self.convert_time(self.distance_to_time(totalDistance)) + self.departureTime
+        previous_package.onTruck = self.id
+        self.route.append(previous_package)
         deadlineList.remove(previous_package)
         while len(deadlineList) > 0:
             nearestNode = None
@@ -72,9 +73,10 @@ class Truck:
                 if distance < shortestDistance:
                     shortestDistance = float(self.checkDistance(distance_table, next_package.address, previous_package.address))
                     nearestNode = next_package
-            self.route.append(nearestNode.id)
             totalDistance += shortestDistance
-            next_package.deliverytime = self.convert_time(self.distance_to_time(totalDistance)) + self.departureTime
+            nearestNode.deliverytime = self.convert_time(self.distance_to_time(totalDistance)) + self.departureTime
+            nearestNode.onTruck = self.id
+            self.route.append(nearestNode)
             previous_package = nearestNode
             deadlineList.remove(nearestNode)
         finalAddress = ""
@@ -86,9 +88,10 @@ class Truck:
                 if distance < shortestDistance:
                     shortestDistance = float(self.checkDistance(distance_table, next_package.address, previous_package.address))
                     nearestNode = next_package
-            self.route.append(nearestNode.id)
             totalDistance += shortestDistance
-            next_package.deliverytime = self.convert_time(self.distance_to_time(totalDistance)) + self.departureTime
+            nearestNode.deliverytime = self.convert_time(self.distance_to_time(totalDistance)) + self.departureTime
+            nearestNode.onTruck = self.id
+            self.route.append(nearestNode)
             previous_package = nearestNode
             EODList.remove(nearestNode)
             finalAddress = nearestNode.address
@@ -100,6 +103,9 @@ class Truck:
     def failedDelivery(self):
         for package in self.packageList:
             package.metDeliveryTime()
+    def printRoute(self):
+        for i in self.route:
+            print(i.id, "\tDelivery Time:", i.deliverytime)
 
 
 

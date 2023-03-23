@@ -40,6 +40,10 @@ def sortPackages(allPackages):
         if package.id in groupPackageIDs:
             groupedPackages.append(package)
             allPKGList.remove(package)
+    for package in allPKGList:
+        if package.wrongAddress:
+            truckList3.append(package)
+            allPKGList.remove(package)
 
     for package in allPKGList:  # assign truck number requirement
         if package.truckReq == 1:
@@ -53,6 +57,7 @@ def sortPackages(allPackages):
             allPKGList.remove(package)
         elif package.truckReq is None:
             pass
+
 
     for package in allPKGList:  # assign delayed packages to truck number 2 if it can fit
         if package.delayedReq:
@@ -84,15 +89,26 @@ def sortPackages(allPackages):
         canFit1 = 16 - len(truckList1) > 0
         canFit2 = 16 - len(truckList2) > 0
         canFit3 = 16 - len(truckList3) > 0
-        if canFit1:
+        if canFit1 and package.deadline < 2400:
             truckList1.append(package)
-            # allPKGList.remove(package)
+            allPKGList.remove(package)
+        elif canFit2 and package.deadline < 2400:
+            truckList2.append(package)
+            allPKGList.remove(package)
+        elif canFit3 and package.deadline < 2400:
+            truckList3.append(package)
+            allPKGList.remove(package)
+    for package in allPKGList:  # add other packages to truck lists
+        canFit1 = 16 - len(truckList1) > 0
+        canFit2 = 16 - len(truckList2) > 0
+        canFit3 = 16 - len(truckList3) > 0
+        if canFit3:
+            truckList3.append(package)
         elif canFit2:
             truckList2.append(package)
-            # allPKGList.remove(package)
-        elif canFit3:
-            truckList3.append(package)
-            # allPKGList.remove(package)
+        elif canFit1:
+            truckList1.append(package)
+
 
     truckLoads = [truckList1, truckList2, truckList3]
     # set of lists, 1 list for each truck: [[pkgid, [pgkid],[pkgid], ...]
@@ -135,8 +151,6 @@ def loadPackages():
                 key_val = dict_of_packages.hash_map[outerbox][innerelement]
                 # print(key_val)
         test_pkg = dict_of_packages.get(21)
-        print(test_pkg.id)
-        print(test_pkg.deadline)
         return dict_of_packages
 
 
@@ -164,6 +178,8 @@ if __name__ == '__main__':
     distanceTable = loadDistances()
     loads = sortPackages(packages)
     trucks = []
+    allpkgList = []
+    #packages = MyDictionary(24)
     index = 1
     for load in loads:
         if index == 1:
@@ -174,12 +190,20 @@ if __name__ == '__main__':
         trucks.append(truck)
         index += 1
 
+    index = 1
     for truck in trucks:
+        if index == 3:
+            truck.departureTime = min(trucks[0].EODTime, trucks[1].EODTime)
+        index +=1
         truck.findRoute(distanceTable)
         print("Truck ID:", truck.id, "\nNumber of Packages:", len(truck.packageList))
         print("Total Distance:", truck.totalDistance, "\nEOD Time:", truck.EODTime)
         truck.failedDelivery()
+        truck.printRoute()
         print("\n\n")
+
+    pkg9 = packages.get(9)
+    print("\n\n", pkg9.deliverytime, "\tOn truck:", pkg9.onTruck)
 
 
     # print(input"what package are you looking for? what time is it now?")

@@ -10,14 +10,17 @@ class Package:
       self.deliveredWithReq = None
       self.delayedReq = False
       self.truckReq = None
+      self.wrongAddress = False
       self.status = status
       self.notes = notes
       self.deliverytime = 0
       self.setRequirements(notes)
+      self.onTruck = ""
 
     def setRequirements(self, notes):
         deliveredWith = re.compile(r'Must be delivered with .*')
         truck = re.compile(r'Can only be on truck .*')
+        wrongaddress = re.compile(r'Wrong address .*')
 
         if re.search(truck, notes):
             self.truckReq = int(re.sub(r'\D', "", notes))
@@ -26,6 +29,8 @@ class Package:
             strings = temp.split(',')
             numbers = [eval(i) for i in strings]
             self.deliveredWithReq = numbers
+        elif re.search(wrongaddress, notes):
+            self.wrongAddress = True
         elif notes != "":
             self.delayedReq = True
 
@@ -38,4 +43,5 @@ class Package:
     def metDeliveryTime (self):
         if self.deliverytime > self.deadline:
             print(self.id, "did not meet deadline of", self.deadline, "delivery time:", self.deliverytime)
+
 
