@@ -45,6 +45,9 @@ class Truck:
         deadlineList = []
         EODList = []
         for package in self.packageList:
+            package.onTruck = self.id
+            print("Package ID:", package.id,"Assigned to truck#", package.onTruck)
+        for package in self.packageList:
             if package.deadline != 2400:
                 deadlineList.append(package)
             else:
@@ -62,6 +65,7 @@ class Truck:
         toNode = previous_package.address
         totalDistance = float(self.checkDistance(distance_table, fromNode, toNode))
         previous_package.deliverytime = self.convert_time(self.distance_to_time(totalDistance)) + self.departureTime
+        previous_package.status = 'Delivered at: ' + str(previous_package.deliverytime)
         previous_package.onTruck = self.id
         self.route.append(previous_package)
         deadlineList.remove(previous_package)
@@ -75,6 +79,7 @@ class Truck:
                     nearestNode = next_package
             totalDistance += shortestDistance
             nearestNode.deliverytime = self.convert_time(self.distance_to_time(totalDistance)) + self.departureTime
+            nearestNode.status = 'Delivered at: ' + str(nearestNode.deliverytime)
             nearestNode.onTruck = self.id
             self.route.append(nearestNode)
             previous_package = nearestNode
@@ -90,6 +95,7 @@ class Truck:
                     nearestNode = next_package
             totalDistance += shortestDistance
             nearestNode.deliverytime = self.convert_time(self.distance_to_time(totalDistance)) + self.departureTime
+            nearestNode.status = 'Delivered at: ' + str(nearestNode.deliverytime)
             nearestNode.onTruck = self.id
             self.route.append(nearestNode)
             previous_package = nearestNode

@@ -3,19 +3,25 @@ import re
 
 
 class Package:
-    def __init__(self, id, address, deadline, notes, status):
-      self.id = id
-      self.address = address
-      self.deadline = int(deadline)
-      self.deliveredWithReq = None
-      self.delayedReq = False
-      self.truckReq = None
-      self.wrongAddress = False
-      self.status = status
-      self.notes = notes
-      self.deliverytime = 0
-      self.setRequirements(notes)
-      self.onTruck = ""
+    def __init__(self, id, address, deadline, notes, status, zipcode, city, state, weight):
+        self.id = id
+        self.address = address
+        self.deadline = int(deadline)
+        self.deliveredWithReq = None
+        self.delayedReq = False
+        self.truckReq = None
+        self.wrongAddress = False
+        self.status = status
+        self.notes = notes
+        self.deliverytime = 0
+        self.setRequirements(notes)
+        self.onTruck = ""
+        self.zipcode = zipcode
+        self.city = city
+        self.weight = weight
+        self.state = state
+
+
 
     def setRequirements(self, notes):
         deliveredWith = re.compile(r'Must be delivered with .*')
@@ -35,13 +41,11 @@ class Package:
             self.delayedReq = True
 
     def __setattr__(self, name: str, value: Any) -> None:
-      super().__setattr__(name, value)
+        super().__setattr__(name, value)
 
     def __getattribute__(self, name: str) -> Any:
-      return super().__getattribute__(name)
+        return super().__getattribute__(name)
 
-    def metDeliveryTime (self):
+    def metDeliveryTime(self):
         if self.deliverytime > self.deadline:
             print(self.id, "did not meet deadline of", self.deadline, "delivery time:", self.deliverytime)
-
-
