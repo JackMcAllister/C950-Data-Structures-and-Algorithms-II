@@ -9,6 +9,7 @@ import csv
 import re
 
 
+# Takes a list and two addresses
 def checkDistance(double_dict, add1, add2):
     a = double_dict.get(add1).get(add2)
     b = double_dict.get(add2).get(add1)
@@ -20,6 +21,7 @@ def checkDistance(double_dict, add1, add2):
         return None
 
 
+# goes through my list of packages and sorts them based on their delievery requirements
 def sortPackages(allPackages):
     # algorithm takes a list (allPackages) and sorts into 3 truckLoads (#of trucks we have)
     allPKGList = allPackages.getValues()
@@ -109,12 +111,11 @@ def sortPackages(allPackages):
             truckList1.append(package)
 
     truckLoads = [truckList1, truckList2, truckList3]
-    # set of lists, 1 list for each truck: [[pkgid, [pgkid],[pkgid], ...]
-    # print('truckList1 :', len(truckList1), truckList1, '\n', 'truckList2 :', len(truckList2), truckList2, '\n',
-    #      'truckList3 :', len(truckList3), " ", truckList3)
+
     return truckLoads
 
 
+# this converts 'EOD' to '2400'
 def convertTime(rawVal):
     time_pattern = re.compile(r'[^0-9]')
     # if the raw value contains a non-decimal character
@@ -126,6 +127,7 @@ def convertTime(rawVal):
         return 2400
 
 
+# this loads my packages into a hashtable (myDictionary Object: dict_of_packages) from the Excel CSV file
 def loadPackages():
     with open('PackageFile_CSV.csv') as csvfile:
         reader = csv.DictReader(csvfile)
@@ -139,7 +141,7 @@ def loadPackages():
             notes = row.get('Special Notes')
             status = row.get('At Hub')
             zipcode = row.get('Zip')
-            city = row.get('City')
+            city = row.get('City ')
             state = row.get('State')
             weight = row.get('Mass KILO')
 
@@ -156,6 +158,8 @@ def loadPackages():
         return dict_of_packages
 
 
+# this creates a 'myDictionary hash table' with another 'myDictionary hash table' has its value
+# the inner 'myDictionary hash table' object's value is the distance between the two addresses
 def loadDistances():
     distances = MyDictionary(12)
     names = []
@@ -171,19 +175,18 @@ def loadDistances():
                 if row[col] != '':
                     insideDict.insert(name2, row[col + 1])
             distances.insert(name1, insideDict)
-            # print(insideDict)
         return distances
 
 
 if __name__ == '__main__':
-    packages = loadPackages()
-    distanceTable = loadDistances()
-    loads = sortPackages(packages)
-    trucks = []
-    allpkgList = []
+    packages = loadPackages()  # packages are loaded into a hash from the csv file
+    distanceTable = loadDistances()  # distances are loaded into a nesting hast table from csv file
+    loads = sortPackages(packages)  # packages are sorted into 3 lists based on requirements
+    trucks = []  # truck list is instantiated
+    allpkgList = []  # all package list is instantiated
     # packages = MyDictionary(24)
     index = 1
-    for load in loads:
+    for load in loads:  # the lists are loaded into the 3 trucks as the trucks are instantiated
         if index == 1:
             start = 800  # earliest a truck can leave the HUB
         elif index == 2:
@@ -194,20 +197,21 @@ if __name__ == '__main__':
 
     index = 1
     # truck 3 leaves when the first of truck 1 or 2 gets back to the hub
+    totalDistance = 0
     for truck in trucks:
         if index == 3:
             truck.departureTime = min(trucks[0].EODTime, trucks[1].EODTime)
         index += 1
-        truck.findRoute(distanceTable)
+
         print("Truck ID:", truck.id, "\nNumber of Packages:", len(truck.packageList))
-        print("Total Distance:", truck.totalDistance, "\nEOD Time:", truck.EODTime)
+        truck.findRoute(distanceTable)
+        print("Total Distance:", round(truck.totalDistance),
+              "\n" "Start time:", truck.departureTime, "\nEOD Time:",
+              truck.EODTime)
+        totalDistance += truck.totalDistance  # add each truck's distance traveled
         truck.failedDelivery()
         truck.printRoute()
         print("\n\n")
-    # QA test
-    pkg9 = packages.get(9)
-    print("\n\n", "Package ID:", pkg9.id, "Delievery Time:", pkg9.deliverytime, "Status:", pkg9.status, "\tOn truck:",
-          pkg9.onTruck)
 
     packageIDprompt = 9  # int(input("enter package ID number"))
     Time_Prompt = 800  # int(input("enter time to check status (Military time: HHMM omit first '0')"))
@@ -216,18 +220,14 @@ if __name__ == '__main__':
     Truck_with_Package = trucks[pkgINQUIRY_TRUCK_ID - 1]
     truck_departure_time = Truck_with_Package.departureTime
 
-    print(pkgINQUIRY.id, " ", Time_Prompt)
+    print("Package ID:", pkgINQUIRY.id, "at time:", Time_Prompt)
     get_truck_id = int(pkgINQUIRY.onTruck)
 
     if pkgINQUIRY.deliverytime > Time_Prompt:
-        print("Package ID:", pkgINQUIRY.id, "Status: En Route to Delivery Address")
+        print("Status: En Route to Delivery Address")
     elif truck_departure_time > Time_Prompt:
-        print("Package ID:", pkgINQUIRY.id, "Status: At Hub")
+        print("Status: At Hub")
     elif pkgINQUIRY.deliverytime < Time_Prompt:
-        print("Package ID:", pkgINQUIRY.id, "Status:", pkgINQUIRY.status)
+        print("Status:", pkgINQUIRY.status)
 
-    # print(input"what package are you looking for? what time is it now?")
-    #  format time "XX:XX"
-    #  package 21 is en route at 9am.
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    print("Total distance traveled by 3 trucks:", totalDistance)

@@ -44,9 +44,13 @@ class Truck:
         route = []
         deadlineList = []
         EODList = []
+        idlist = []
+        print("Package IDs Assigned to truck", self.id, ":")
         for package in self.packageList:
             package.onTruck = self.id
-            print("Package ID:", package.id,"Assigned to truck#", package.onTruck)
+            idlist.append(package.id)
+        print(idlist)
+
         for package in self.packageList:
             if package.deadline != 2400:
                 deadlineList.append(package)
@@ -110,8 +114,19 @@ class Truck:
         for package in self.packageList:
             package.metDeliveryTime()
     def printRoute(self):
+        idlist = []
         for i in self.route:
-            print(i.id, "\tDelivery Time:", i.deliverytime)
+            idlist.append(i.id)
+        print("ROUTE:", idlist)
+        for i in self.route:
+            if i.deliverytime < i.deadline:
+                print("On time delievery:")
+            else:
+                print(i.id, "delivered late:")
+            print("ID:", i.id, "\tAddress:", i.address, ",", i.city, ",", i.state, ",", i.zipcode, "Weight in Kilos:", i.weight, "\t\t\tDelivery Time:", i.deliverytime,"Deadline:", i.deadline, "\n")
+
+            idlist.append(i.id)
+
 
 
 

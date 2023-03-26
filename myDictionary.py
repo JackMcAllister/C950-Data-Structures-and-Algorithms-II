@@ -68,17 +68,18 @@ class MyDictionary(object):
             count += 1
         return -1
 
-    # not used
+    #section not used
+    '''
     def binarysearch(self, arr, search):
         length = int(len(arr))
         # length = self.myDictLength(search)
         low = 0
-        '''
+        
         if len(arr) is tuple:
             high = len(arr)[1]
         else:
             high = len(arr)
-        '''
+       
         mid = (length + low) // 2
 
         while low != length and low != mid and mid != length:
@@ -92,7 +93,7 @@ class MyDictionary(object):
                 return mid
         return None
 
-    # not used
+    
     def quicksort(self, arr):  # not implemented
         if len(arr) < 2:
             return arr
@@ -106,7 +107,7 @@ class MyDictionary(object):
             elif index > pivot:
                 high.append(index)
         return self.quicksort(low) + same + self.quicksort(high)
-
+'''
     def containskey(self, key):
         if self.get(key) == None:
             return False
