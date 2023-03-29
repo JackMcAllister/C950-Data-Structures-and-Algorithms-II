@@ -178,6 +178,32 @@ def loadDistances():
         return distances
 
 
+#  this is my package status lookup method
+def packagestatuslookup(id, time):
+    packageIDprompt = id  # (input("enter package ID number")
+    packageIDprompt = int(packageIDprompt)
+    Time_Prompt = time  # input("enter time of day in military time")
+    Time_Prompt = re.sub('\D', '', Time_Prompt)
+    Time_Prompt = int(Time_Prompt)
+    pkgINQUIRY = packages.get(packageIDprompt)
+    pkgINQUIRY_TRUCK_ID = pkgINQUIRY.onTruck
+    Truck_with_Package = trucks[pkgINQUIRY_TRUCK_ID - 1]
+    truck_departure_time = Truck_with_Package.departureTime
+
+    print("Package ID:", pkgINQUIRY.id, "at time:", time)
+
+    if truck_departure_time >= Time_Prompt:
+        print("Status: At Hub,", "Deadline:", pkgINQUIRY.deadline)
+    elif pkgINQUIRY.deliverytime > Time_Prompt:
+        print("Status: En Route to Delivery Address,", "Deadline:", pkgINQUIRY.deadline)
+    elif pkgINQUIRY.deliverytime <= Time_Prompt:
+        print("Status:", pkgINQUIRY.status, ", Deadline:", pkgINQUIRY.deadline)
+    print("Delivery Address:", pkgINQUIRY.address, ",", pkgINQUIRY.city, ",", pkgINQUIRY.state, ",",
+          pkgINQUIRY.zipcode, "\nKilos:", pkgINQUIRY.weight, ",", "Notes:", pkgINQUIRY.notes)
+    print("\nTotal distance traveled by 3 trucks:", totalDistance)
+    return None
+
+
 if __name__ == '__main__':
     packages = loadPackages()  # packages are loaded into a hash from the csv file
     distanceTable = loadDistances()  # distances are loaded into a nesting hast table from csv file
@@ -213,21 +239,8 @@ if __name__ == '__main__':
         truck.printRoute()
         print("\n\n")
 
-    packageIDprompt = 9  # int(input("enter package ID number"))
-    Time_Prompt = 800  # int(input("enter time to check status (Military time: HHMM omit first '0')"))
-    pkgINQUIRY = packages.get(packageIDprompt)
-    pkgINQUIRY_TRUCK_ID = pkgINQUIRY.onTruck
-    Truck_with_Package = trucks[pkgINQUIRY_TRUCK_ID - 1]
-    truck_departure_time = Truck_with_Package.departureTime
-
-    print("Package ID:", pkgINQUIRY.id, "at time:", Time_Prompt)
-    get_truck_id = int(pkgINQUIRY.onTruck)
-
-    if pkgINQUIRY.deliverytime > Time_Prompt:
-        print("Status: En Route to Delivery Address")
-    elif truck_departure_time > Time_Prompt:
-        print("Status: At Hub")
-    elif pkgINQUIRY.deliverytime < Time_Prompt:
-        print("Status:", pkgINQUIRY.status)
-
-    print("Total distance traveled by 3 trucks:", totalDistance)
+    UserInput_PkgID = int(input("Please enter package ID number and press enter."))
+    print(UserInput_PkgID)
+    UserInput_Time = input("Please enter time of day in Miltary time (HH:MM).")
+    print(UserInput_Time)
+    packagestatuslookup(UserInput_PkgID, UserInput_Time)

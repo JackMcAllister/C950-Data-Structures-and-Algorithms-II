@@ -119,11 +119,8 @@ class Truck:
             idlist.append(i.id)
         print("ROUTE:", idlist)
         for i in self.route:
-            if i.deliverytime < i.deadline:
-                print("On time delievery:")
-            else:
-                print(i.id, "delivered late:")
-            print("ID:", i.id, "\tAddress:", i.address, ",", i.city, ",", i.state, ",", i.zipcode, "Weight in Kilos:", i.weight, "\t\t\tDelivery Time:", i.deliverytime,"Deadline:", i.deadline, "\n")
+            print("ID:", i.id, "\tAddress:", i.address, ",", i.city, ",", i.state, ",", i.zipcode,
+                  "\nWeight in Kilos:", i.weight, "Delivery Time:", i.deliverytime, "Deadline:", i.deadline)
 
             idlist.append(i.id)
 
