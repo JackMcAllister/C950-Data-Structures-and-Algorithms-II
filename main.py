@@ -7,21 +7,22 @@ from truck import Truck
 from myDictionary import MyDictionary
 import csv
 import re
+from operator import attrgetter
 
 
 # Takes a list and two addresses
 def checkDistance(double_dict, add1, add2):
     a = double_dict.get(add1).get(add2)
     b = double_dict.get(add2).get(add1)
-    if a != None:
+    if a is not None:
         return a
-    elif b != None:
+    elif b is not None:
         return b
     else:
         return None
 
 
-# goes through my list of packages and sorts them based on their delievery requirements
+# goes through my list of packages and sorts them based on their delivery requirements
 def sortPackages(allPackages):
     # algorithm takes a list (allPackages) and sorts into 3 truckLoads (#of trucks we have)
     allPKGList = allPackages.getValues()
@@ -132,7 +133,6 @@ def loadPackages():
     with open('PackageFile_CSV.csv') as csvfile:
         reader = csv.DictReader(csvfile)
         dict_of_packages = MyDictionary()
-        packageList = []
         for row in reader:
             id = int(row.get('Package ID'))
             address = row.get('Address')
@@ -148,12 +148,9 @@ def loadPackages():
             package = Package(id, address, deadline, notes, status, zipcode, city, state, weight)
             dict_of_packages.insert(id, package)
 
-            # packageList = packageList.append(dict_of_packages.index(0))
-
         for outerbox in range(0, len(dict_of_packages.hash_map)):
             for innerelement in range(0, len(dict_of_packages.hash_map[outerbox])):
                 key_val = dict_of_packages.hash_map[outerbox][innerelement]
-                # print(key_val)
         test_pkg = dict_of_packages.get(21)
         return dict_of_packages
 
@@ -195,12 +192,33 @@ def packagestatuslookup(id, time):
     if truck_departure_time >= Time_Prompt:
         print("Status: At Hub,", "Deadline:", pkgINQUIRY.deadline)
     elif pkgINQUIRY.deliverytime > Time_Prompt:
-        print("Status: En Route to Delivery Address,", "Deadline:", pkgINQUIRY.deadline)
+        print("Status: En Route,", "Deadline:", pkgINQUIRY.deadline)
     elif pkgINQUIRY.deliverytime <= Time_Prompt:
-        print("Status:", pkgINQUIRY.status, ", Deadline:", pkgINQUIRY.deadline)
+        print("Status:", pkgINQUIRY.status, ",", "Deadline:", pkgINQUIRY.deadline)
     print("Delivery Address:", pkgINQUIRY.address, ",", pkgINQUIRY.city, ",", pkgINQUIRY.state, ",",
           pkgINQUIRY.zipcode, "\nKilos:", pkgINQUIRY.weight, ",", "Notes:", pkgINQUIRY.notes)
     print("\nTotal distance traveled by 3 trucks:", totalDistance)
+    return None
+
+
+def ALL_PKGS_STATUS_AtTIME(time, trucks):
+    Time_Prompt = time  # input("enter time of day in military time")
+    Time_Prompt = re.sub(r'\D', '', Time_Prompt)
+    Time_Prompt = int(Time_Prompt)
+    print("\nStatus of packages at time:", Time_Prompt)
+    for truck in trucks:
+        print("For Truck#", truck.id, ":")
+        truck_departure_time = truck.departureTime
+        for package in truck.packageList:
+            print("Package ID:", package.id, "Delivery Address:", package.address, ",", package.city, ",", package.state, ",",
+                  package.zipcode, "Kilos:", package.weight, ",", "Notes:", package.notes)
+            if truck_departure_time >= Time_Prompt:
+                print("Status: At Hub,", "Deadline:", package.deadline)
+            elif package.deliverytime > Time_Prompt:
+                print("Status: En Route,", "Deadline:", package.deadline)
+            elif package.deliverytime <= Time_Prompt:
+                print("Status:", package.status, ",", "Deadline:", package.deadline)
+
     return None
 
 
@@ -210,37 +228,43 @@ if __name__ == '__main__':
     loads = sortPackages(packages)  # packages are sorted into 3 lists based on requirements
     trucks = []  # truck list is instantiated
     allpkgList = []  # all package list is instantiated
-    # packages = MyDictionary(24)
+
+    # this is loading my trucks with a list of packages to deliver
     index = 1
     for load in loads:  # the lists are loaded into the 3 trucks as the trucks are instantiated
         if index == 1:
             start = 800  # earliest a truck can leave the HUB
         elif index == 2:
-            start = 906  # delayed packages on the flight, will not get to HUb until 9:05am
+            start = 906  # delayed packages on the flight, will not get to HUB until 9:05am
         truck = Truck(index, load, start)
         trucks.append(truck)
         index += 1
 
     index = 1
-    # truck 3 leaves when the first of truck 1 or 2 gets back to the hub
     totalDistance = 0
+    # this 'for-loop' will find routes for packages
     for truck in trucks:
-        if index == 3:
+        if index == 3:  # sets Truck 3's departureTime to the soonest EOD time between Truck 1 and 2
             truck.departureTime = min(trucks[0].EODTime, trucks[1].EODTime)
         index += 1
-
-        print("Truck ID:", truck.id, "\nNumber of Packages:", len(truck.packageList))
+        print("Truck ID:", truck.id)
         truck.findRoute(distanceTable)
-        print("Total Distance:", round(truck.totalDistance),
-              "\n" "Start time:", truck.departureTime, "\nEOD Time:",
-              truck.EODTime)
+        print("Number of Packages Loaded:", len(truck.packageList))
+        truck.printRoute()
+        print("Departure from HUB time:", truck.departureTime, "\nReturn to HUB Time:", truck.EODTime)
         totalDistance += truck.totalDistance  # add each truck's distance traveled
         truck.failedDelivery()
-        truck.printRoute()
-        print("\n\n")
-
-    UserInput_PkgID = int(input("Please enter package ID number and press enter."))
-    print(UserInput_PkgID)
-    UserInput_Time = input("Please enter time of day in Miltary time (HH:MM).")
-    print(UserInput_Time)
+        print("\n")
+    print("Time Format:Military time HH:MM\n(Must include hours and minutes)\n")
+    UserInput_PkgID = int(input("Please enter package ID number and press enter.\n"))
+    UserInput_Time = (input("Please enter time and press enter.\n"))
     packagestatuslookup(UserInput_PkgID, UserInput_Time)
+
+    UserInput_TIME2 = input("Enter a time between 8:35-9:25 to show status of all packages:\n")
+    ALL_PKGS_STATUS_AtTIME(UserInput_TIME2, trucks)
+
+    UserInput_TIME2 = input("\n\nEnter a time between 9:35-10:25 to show status of all packages:\n")
+    ALL_PKGS_STATUS_AtTIME(UserInput_TIME2, trucks)
+
+    UserInput_TIME2 = input("\n\nEnter a time between 12:03-13:12 to show status of all packages:\n")
+    ALL_PKGS_STATUS_AtTIME(UserInput_TIME2, trucks)
