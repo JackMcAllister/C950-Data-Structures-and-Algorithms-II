@@ -202,7 +202,7 @@ def packagestatuslookup(id, time):
 
 
 def ALL_PKGS_STATUS_AtTIME(time, trucks):
-    Time_Prompt = time  # input("enter time of day in military time")
+    Time_Prompt = time
     Time_Prompt = re.sub(r'\D', '', Time_Prompt)
     Time_Prompt = int(Time_Prompt)
     print("\nStatus of packages at time:", Time_Prompt)
@@ -218,7 +218,6 @@ def ALL_PKGS_STATUS_AtTIME(time, trucks):
                 print("Status: En Route,", "Deadline:", package.deadline)
             elif package.deliverytime <= Time_Prompt:
                 print("Status:", package.status, ",", "Deadline:", package.deadline)
-
     return None
 
 
@@ -262,9 +261,13 @@ if __name__ == '__main__':
 
     UserInput_TIME2 = input("Enter a time between 8:35-9:25 to show status of all packages:\n")
     ALL_PKGS_STATUS_AtTIME(UserInput_TIME2, trucks)
+    print("\nTotal distance traveled by 3 trucks:", totalDistance)
 
     UserInput_TIME2 = input("\n\nEnter a time between 9:35-10:25 to show status of all packages:\n")
     ALL_PKGS_STATUS_AtTIME(UserInput_TIME2, trucks)
+    print("\nTotal distance traveled by 3 trucks:", totalDistance)
 
     UserInput_TIME2 = input("\n\nEnter a time between 12:03-13:12 to show status of all packages:\n")
     ALL_PKGS_STATUS_AtTIME(UserInput_TIME2, trucks)
+    print("\nTotal distance traveled by 3 trucks:", totalDistance)
+
